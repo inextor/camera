@@ -1,4 +1,4 @@
-![alt text](https://github.com/inextor/camera/blob/master/screen.jpg?raw=true)
+<img src="https://github.com/inextor/camera/blob/master/screen.jpg?raw=true" alt="drawing" width="200"/>
 
 # Camera
 
