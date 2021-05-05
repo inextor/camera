@@ -1,3 +1,5 @@
+![alt text](https://github.com/inextor/camera/blob/master/screen.jpg?raw=true)
+
 # Camera
 
 Full Camera capabilities example using web api
