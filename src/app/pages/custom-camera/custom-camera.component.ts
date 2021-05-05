@@ -30,6 +30,9 @@ export class CustomCameraComponent  implements OnInit, OnDestroy {
 	track:MediaStreamTrack = null;
 	applied_constraints:any = null;
 	needs_init:boolean = null;
+	advanced_constraints:any = { advanced: [
+
+	]};
 
 	all_Tracks:any[] = [];
 
@@ -184,7 +187,19 @@ export class CustomCameraComponent  implements OnInit, OnDestroy {
 			this.current_constraints[ video_option.name ] = video_option.value;
 		}
 
-		this.applyConstraints()
+
+		if( this.needs_init )
+		{
+			this.applyConstraints()
+		}
+		else
+		{
+			let obj = {};
+			obj[ video_option.name ] = video_option.value;
+
+			this.track.applyConstraints({advanced:[ obj ]});
+		}
+
 	}
 
 
