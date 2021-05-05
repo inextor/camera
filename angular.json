@@ -1,5 +1,8 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "cli": {
+    "analytics": "69b7df78-0ddf-4d23-931d-421aca1ed3b1"
+  },
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
@@ -24,9 +27,12 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.css"
+              "src/assets/css/bootstrap.min.css",
+              "src/styles.css",
+              "src/custom_theme.css"
             ],
-            "scripts": []
+            "scripts": ["src/assets/css/bootstrap.bundle.min.js",
+              "src/assets/externalFunctions.js",]
           },
           "configurations": {
             "production": {
