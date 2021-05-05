@@ -28,6 +28,8 @@ export class CustomCameraComponent  implements OnInit, OnDestroy {
 	current_constraints:MediaTrackConstraints = {};
 	devices:MediaDeviceInfo[] = [];
 	track:MediaStreamTrack = null;
+	applied_constraints:any = null;
+	needs_init:boolean = null;
 
 	video_constraints:any ={
 
@@ -68,18 +70,141 @@ export class CustomCameraComponent  implements OnInit, OnDestroy {
 
 	onGetUserMediaButtonClick(evt:any)
 	{
-		let constraints:any= {
-			video:{
-				facingMode:{ ideal: "environment" },
-				focusDistance:{ ideal: 0.2 },
-				apectRatio:{ ideal:(4/3)},
-				zoom:{ideal: 4},
-				resizeMode:{ ideal: "none" },
-				focusMode:{ ideal: "continuous" }
-			}
-		};
+		this.stopVideo();
+		this.initCam();
+	}
 
-		navigator.mediaDevices.getUserMedia(constraints).then( mediaStream => {
+	nextCam()
+	{
+
+	}
+
+	onGrabFrameButtonClick(evt:any)
+	{
+		this.imageCapture.grabFrame()
+		.then((imageBitmap:ImageBitmap) => {
+			const canvas = document.querySelector('#grabFrameCanvas') as HTMLCanvasElement;
+			this.drawCanvas(canvas, imageBitmap);
+		})
+		.catch(error => this.rest.showError(error));
+	}
+
+	onTakePhotoButtonClick(evt:any)
+	{
+		this.imageCapture.takePhoto()
+		.then(blob => createImageBitmap(blob))
+		.then((imageBitmap:ImageBitmap) => {
+			const canvas = document.getElementById('takePhotoCanvas') as HTMLCanvasElement;
+			this.drawCanvas(canvas, imageBitmap);
+		})
+		.catch(error => this.rest.showError(error));
+	}
+
+	/* Utils */
+
+	drawCanvas(canvas:HTMLCanvasElement, img:ImageBitmap)
+	{
+		//let canvas_width = 1920;
+		//let canvas_height = 1080;
+		canvas.width = parseInt(getComputedStyle(canvas).width.split('px')[0]);
+		canvas.height = parseInt(getComputedStyle(canvas).height.split('px')[0]);
+
+		let ratio	= Math.min(canvas.width / img.width, canvas.height / img.height);
+		let x = (canvas.width - img.width * ratio) / 2;
+		let y = (canvas.height - img.height * ratio) / 2;
+		canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+		canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height, x, y, img.width * ratio, img.height * ratio);
+	}
+
+
+	applyConstraints()
+	{
+		let constraints:any= { video:{ } };
+
+		for(let i in this.video_options)
+		{
+			let c = this.video_options[i];
+
+			if( c.enable && this.current_constraints[ c.name ]  )
+			{
+				constraints.video[ c.name ] = { ideal: c.value };
+			}
+		}
+
+		this.applied_constraints = constraints;
+		if( this.needs_init )
+		{
+			this.initCam();
+		}
+		else
+		{
+			this.track.applyConstraints( constraints )
+			.then(()=>
+			{
+				this.rest.showSuccess('Constraints applicados');
+				this.updateConstraintsValues( this.track.getConstraints() )
+			})
+			.catch((error)=>
+			{
+				this.rest.showError(error);
+			});
+		}
+	}
+
+	updateConstraintsValues(mediaTrackConstraints:MediaTrackConstraints)
+	{
+		//this.current_constraints = mediaTrackConstraints;
+
+		for(let i in mediaTrackConstraints)
+		{
+			let type = typeof( mediaTrackConstraints[i] );
+			if( i in this.video_options && this.video_options[i].enable )
+			{
+				if( type == "string" || type == "number" || type == "boolean")
+				{
+					this.video_options.value = mediaTrackConstraints[i];
+				}
+			}
+		}
+	}
+
+	updateVideoOption(video_option:Capabilities, evt:any)
+	{
+		console.log( evt.target.value );
+		if( video_option.min !== undefined )
+		{
+			video_option.value = parseInt( evt.target.value );
+			this.current_constraints[ video_option.name ] = video_option.value;
+		}
+		else
+		{
+			video_option.value = evt.target.value;
+			this.current_constraints[ video_option.name ] = video_option.value;
+		}
+
+		this.applyConstraints()
+	}
+
+
+	initCam()
+	{
+		if( this.applied_constraints  == null )
+		{
+			this.applied_constraints =  {
+				video:{
+					facingMode:{ ideal: "environment" },
+					focusDistance:{ ideal: 0.2 },
+					apectRatio:{ ideal:(4/3)},
+					zoom:{ideal: 4},
+					resizeMode:{ ideal: "none" },
+					focusMode:{ ideal: "continuous" }
+				}
+			};
+		}
+
+		this.applied_constraints.video['facingMode']={ ideal: 'environment' };
+
+		navigator.mediaDevices.getUserMedia( this.applied_constraints ).then( mediaStream => {
 			let video = document.getElementById('video') as HTMLVideoElement;
 			video.srcObject = mediaStream;
 			this.track = mediaStream.getVideoTracks()[0];
@@ -150,109 +275,11 @@ export class CustomCameraComponent  implements OnInit, OnDestroy {
 		.catch(error => this.rest.showError(error));
 	}
 
-	nextCam()
+
+	changeNeedsInit(evt:any)
 	{
-
+		this.needs_init = evt.target.checked;
 	}
-
-	onGrabFrameButtonClick(evt:any)
-	{
-		this.imageCapture.grabFrame()
-		.then((imageBitmap:ImageBitmap) => {
-			const canvas = document.querySelector('#grabFrameCanvas') as HTMLCanvasElement;
-			this.drawCanvas(canvas, imageBitmap);
-		})
-		.catch(error => this.rest.showError(error));
-	}
-
-	onTakePhotoButtonClick(evt:any)
-	{
-		this.imageCapture.takePhoto()
-		.then(blob => createImageBitmap(blob))
-		.then((imageBitmap:ImageBitmap) => {
-			const canvas = document.getElementById('takePhotoCanvas') as HTMLCanvasElement;
-			this.drawCanvas(canvas, imageBitmap);
-		})
-		.catch(error => this.rest.showError(error));
-	}
-
-	/* Utils */
-
-	drawCanvas(canvas:HTMLCanvasElement, img:ImageBitmap)
-	{
-		//let canvas_width = 1920;
-		//let canvas_height = 1080;
-		canvas.width = parseInt(getComputedStyle(canvas).width.split('px')[0]);
-		canvas.height = parseInt(getComputedStyle(canvas).height.split('px')[0]);
-
-		let ratio	= Math.min(canvas.width / img.width, canvas.height / img.height);
-		let x = (canvas.width - img.width * ratio) / 2;
-		let y = (canvas.height - img.height * ratio) / 2;
-		canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-		canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height, x, y, img.width * ratio, img.height * ratio);
-	}
-
-
-	applyConstraints()
-	{
-		let constraints:any= { video:{ } };
-
-		for(let i in this.video_options)
-		{
-			let c = this.video_options[i];
-
-			if( c.enable && this.current_constraints[ c.name ]  )
-			{
-				constraints.video[ c.name ] = c.value;
-			}
-		}
-
-		this.track.applyConstraints( constraints )
-		.then(()=>
-		{
-			this.rest.showSuccess('Constraints applicados');
-			this.updateConstraintsValues( this.track.getConstraints() )
-		})
-		.catch((error)=>
-		{
-			this.rest.showError(error);
-		});
-	}
-
-	updateConstraintsValues(mediaTrackConstraints:MediaTrackConstraints)
-	{
-		this.current_constraints = mediaTrackConstraints;
-
-		for(let i in mediaTrackConstraints)
-		{
-			let type = typeof( mediaTrackConstraints[i] );
-			if( i in this.video_options && this.video_options[i].enable )
-			{
-				if( type == "string" || type == "number" || type == "boolean")
-				{
-					this.video_options.value = mediaTrackConstraints[i];
-				}
-			}
-		}
-	}
-
-	updateVideoOption(video_option:Capabilities, evt:any)
-	{
-		console.log( evt.target.value );
-		if( video_option.min !== undefined )
-		{
-			video_option.value = parseInt( evt.target.value );
-			this.current_constraints[ video_option.name ] = video_option.value;
-		}
-		else
-		{
-			video_option.value = evt.target.value;
-			this.current_constraints[ video_option.name ] = video_option.value;
-		}
-
-		this.applyConstraints()
-	}
-
 	//document.querySelector('video').addEventListener('play', function() {
 	//		document.querySelector('#grabFrameButton').disabled = false;
 	//		document.querySelector('#takePhotoButton').disabled = false;

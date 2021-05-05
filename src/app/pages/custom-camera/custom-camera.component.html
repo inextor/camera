@@ -1,5 +1,5 @@
 <div class="container-fluid">
-	Version 1.1
+	Version 1.2
 	<div class="row">
 		<div class="col-4">
 			<button class="btn btn-primary" type="button" (click)="onGetUserMediaButtonClick($event)">Start</button>
@@ -11,7 +11,12 @@
 		<div class="col-4">
 			<button class="btn btn-primary" type="button"(click)="stopVideo()">stop</button>
 		</div>
-
+		<div class="col-12">
+			<div class="form-check form-switch pt-2">
+				<input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault"  (change)="changeNeedsInit($event)" [checked]="needs_init">
+				<label class="form-check-label" for="flexSwitchCheckDefault">Necesita Reiniciar</label>
+			</div>
+		</div>
 	</div>
 
 	<video autoplay="" id="video" style="width:200px;height:200px"></video>
@@ -41,7 +46,6 @@
 					</select>
 				</div>
 				<div *ngIf="c.value.list.length == 0" class="form-group">
-					<label>{{c.key}}</label>
 					<input type="range" [max]="c.value.max" [min]="c.value.min"  [ngModel]="c.value.value" (change)="updateVideoOption(video_options[c.key], $event )"  [name]="'video-'+c.key" class="form-range">
 				</div>
 			</div>
@@ -66,4 +70,7 @@
 		<div class="fw-bold text-break">{{v.key}}</div>
 		<div class="fw-bold text-break">{{v.value | json }}</div>
 	</div>
+	<h2>Applied Capabilities</h2>
+	{{ applied_constraints | json}}
+
 </div>
