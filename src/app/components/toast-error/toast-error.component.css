@@ -1,0 +1,18 @@
+
+.alert-modal
+{
+	position: fixed;
+	z-index: 999;
+	bottom: 0;
+	right: 20px;
+	min-width: 200px;
+}
+
+.alert-modal .red>span
+{
+	color: red;
+}
+.alert-modal .green>span
+{
+	color: green;
+}

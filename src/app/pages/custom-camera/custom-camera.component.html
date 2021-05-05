@@ -1,0 +1,53 @@
+<div class="container-fluid">
+	Version 1.0
+	<div class="row">
+		<div class="col-4">
+			<button class="btn btn-primary" type="button" (click)="onGetUserMediaButtonClick($event)">Start</button>
+		</div>
+		<div class="col-4">
+			<button class="btn btn-primary" type="button"(click)="onTakePhotoButtonClick($event)">Foto</button>
+		</div>
+
+		<div class="col-4">
+			<button class="btn btn-primary" type="button"(click)="stopVideo()">stop</button>
+		</div>
+
+	</div>
+
+	<video autoplay="" id="video" style="width:200px;height:200px"></video>
+	<canvas id="takePhotoCanvas" style="width:100%;height:400px"></canvas>
+	<div class="form-group">
+		<select name="foo" class="form-control">
+			<option *ngFor="let d of devices" [value]="d.deviceId">{{d.kind}} - {{d.deviceId}}-{{d.label}}</option>
+		</select>
+	</div>
+
+	<h2>Photo Capabilities</h2>
+	<div *ngFor="let v of raw_photo_capabilities | keyvalue" class="w-100">
+		<div class="fw-bold text-break">{{v.key}}</div>
+		<div class="fw-bold text-break">{{v.value | json }}</div>
+	</div>
+
+	<!-- <h2>Video Capabilities</h2>
+	<div *ngFor="let v of raw_video_capabilities | keyvalue" class="border-bottom">
+		<div class="fw-bold">{{v.key}}</div>
+		<div class="">{{ v.value | json }}</div>
+	</div>
+	-->
+
+	<div *ngFor="let c of video_options|keyvalue" class="w-100">
+		<label class="fw-bold break-word">{{c.key}} {{c.value.value}}</label>
+		<div class="text-break">{{c.value.raw_value | json }}</div>
+		<ng-container *ngIf="c.value.enable">
+			<div *ngIf="c.value.list.length>0" class="form-group">
+				<select [name]="'video'+c.key" [(ngModel)]="c.value.value" class="form-control">
+					<option *ngFor="let value of c.value.list" [ngValue]="value">{{value}}</option>
+				</select>
+			</div>
+			<div *ngIf="c.value.list.length == 0" class="form-group">
+				<label>{{c.key}}</label>
+				<input type="range" [max]="c.value.max" [min]="c.value.min" [(ngModel)]="c.value.value" [name]="'video'+c.key" class="form-range">
+			</div>
+		</ng-container>
+	</div>
+</div>
