@@ -159,6 +159,11 @@ export class Utils
 			}
 		}
 
+		if( 'message' in error  && typeof( error.message ) == 'string' )
+		{
+			return error.message;
+		}
+
 		if( error instanceof HttpErrorResponse )
 		{
 			return error.statusText;

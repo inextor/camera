@@ -1,5 +1,5 @@
 <div class="container-fluid">
-	Version 1.0
+	Version 1.1
 	<div class="row">
 		<div class="col-4">
 			<button class="btn btn-primary" type="button" (click)="onGetUserMediaButtonClick($event)">Start</button>
@@ -22,11 +22,6 @@
 		</select>
 	</div>
 
-	<h2>Photo Capabilities</h2>
-	<div *ngFor="let v of raw_photo_capabilities | keyvalue" class="w-100">
-		<div class="fw-bold text-break">{{v.key}}</div>
-		<div class="fw-bold text-break">{{v.value | json }}</div>
-	</div>
 
 	<!-- <h2>Video Capabilities</h2>
 	<div *ngFor="let v of raw_video_capabilities | keyvalue" class="border-bottom">
@@ -35,19 +30,40 @@
 	</div>
 	-->
 
-	<div *ngFor="let c of video_options|keyvalue" class="w-100">
-		<label class="fw-bold break-word">{{c.key}} {{c.value.value}}</label>
-		<div class="text-break">{{c.value.raw_value | json }}</div>
-		<ng-container *ngIf="c.value.enable">
-			<div *ngIf="c.value.list.length>0" class="form-group">
-				<select [name]="'video'+c.key" [(ngModel)]="c.value.value" class="form-control">
-					<option *ngFor="let value of c.value.list" [ngValue]="value">{{value}}</option>
-				</select>
-			</div>
-			<div *ngIf="c.value.list.length == 0" class="form-group">
-				<label>{{c.key}}</label>
-				<input type="range" [max]="c.value.max" [min]="c.value.min" [(ngModel)]="c.value.value" [name]="'video'+c.key" class="form-range">
+	<div class="card px-2 pb-2 mt-3">
+		<ng-container *ngFor="let c of video_options|keyvalue">
+			<!--div class="text-break">{{c.value.raw_value | json }}</div-->
+			<div *ngIf="c.value.enable" class="form-group border-bottom mt-2">
+				<label class="fw-bold break-word">{{c.key}} - “{{video_options[c.key].value }}”</label>
+				<div *ngIf="c.value.list.length>0" class="form-group">
+					<select [name]="'video-'+c.key" class="form-control" [ngModel]="c.value.value" (change)="updateVideoOption(video_options[c.key], $event )">
+						<option *ngFor="let value of c.value.list" [ngValue]="value">{{value}}</option>
+					</select>
+				</div>
+				<div *ngIf="c.value.list.length == 0" class="form-group">
+					<label>{{c.key}}</label>
+					<input type="range" [max]="c.value.max" [min]="c.value.min"  [ngModel]="c.value.value" (change)="updateVideoOption(video_options[c.key], $event )"  [name]="'video-'+c.key" class="form-range">
+				</div>
 			</div>
 		</ng-container>
+	</div>
+
+	<h2>Current Video Constraints</h2>
+	<div class="text-break">
+		{{
+		current_constraints | json
+		}}
+	</div>
+
+	<h2>Photo Capabilities</h2>
+	<div *ngFor="let v of raw_photo_capabilities | keyvalue" class="w-100">
+		<div class="fw-bold text-break">{{v.key}}</div>
+		<div class="fw-bold text-break">{{v.value | json }}</div>
+	</div>
+
+	<h2>Video Capabilities</h2>
+	<div *ngFor="let v of raw_video_capabilities | keyvalue" class="w-100">
+		<div class="fw-bold text-break">{{v.key}}</div>
+		<div class="fw-bold text-break">{{v.value | json }}</div>
 	</div>
 </div>

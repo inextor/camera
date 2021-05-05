@@ -8,9 +8,9 @@ declare function getImageCapture(track):any;
 
 interface Capabilities{
 	name:string;
-	min?:number | null;
-	max?:number | null;
-	step?:number | null;
+	min?:number;
+	max?:number;
+	step?:number;
 	list:string[];
 	enable:boolean;
 	value:any;
@@ -25,7 +25,7 @@ interface Capabilities{
 })
 export class CustomCameraComponent  implements OnInit, OnDestroy {
 
-	currentConstraints:MediaTrackConstraints = {};
+	current_constraints:MediaTrackConstraints = {};
 	devices:MediaDeviceInfo[] = [];
 	track:MediaStreamTrack = null;
 
@@ -79,13 +79,13 @@ export class CustomCameraComponent  implements OnInit, OnDestroy {
 			}
 		};
 
-		navigator.mediaDevices.getUserMedia(constraints).then(mediaStream => {
+		navigator.mediaDevices.getUserMedia(constraints).then( mediaStream => {
 			let video = document.getElementById('video') as HTMLVideoElement;
 			video.srcObject = mediaStream;
 			this.track = mediaStream.getVideoTracks()[0];
-			this.currentConstraints = this.track.getConstraints();
 			this.imageCapture = getImageCapture( this.track );
 			this.raw_video_capabilities = this.track.getCapabilities();
+			this.updateConstraintsValues(this.track.getConstraints());
 
 			let banned:string[] = ['aspectRatio','height','width'];
 
@@ -130,12 +130,12 @@ export class CustomCameraComponent  implements OnInit, OnDestroy {
 				else if( typeof this.raw_video_capabilities[i] == "object" )
 				{
 					this.video_options[i] ={
-						min: this.raw_video_capabilities[i].min,
-						max: this.raw_video_capabilities[i].max,
-						step: this.raw_video_capabilities[i].step,
+						min: this.raw_video_capabilities[i]?.min,
+						max: this.raw_video_capabilities[i]?.max,
+						step: this.raw_video_capabilities[i]?.step,
 						name: i,
 						list: [],
-						value:this.raw_video_capabilities[i].min,
+						value:this.raw_video_capabilities[i]?.min,
 						enable: true,
 						raw_value: this.raw_video_capabilities[i]
 					};
@@ -195,17 +195,19 @@ export class CustomCameraComponent  implements OnInit, OnDestroy {
 
 	applyConstraints()
 	{
+		let constraints:any= { video:{ } };
+
 		for(let i in this.video_options)
 		{
 			let c = this.video_options[i];
 
-			if( c.enable )
+			if( c.enable && this.current_constraints[ c.name ]  )
 			{
-				this.video_constraints[ c.name ] = c.value;
+				constraints.video[ c.name ] = c.value;
 			}
 		}
 
-		this.track.applyConstraints( this.video_constraints )
+		this.track.applyConstraints( constraints )
 		.then(()=>
 		{
 			this.rest.showSuccess('Constraints applicados');
@@ -219,7 +221,36 @@ export class CustomCameraComponent  implements OnInit, OnDestroy {
 
 	updateConstraintsValues(mediaTrackConstraints:MediaTrackConstraints)
 	{
+		this.current_constraints = mediaTrackConstraints;
 
+		for(let i in mediaTrackConstraints)
+		{
+			let type = typeof( mediaTrackConstraints[i] );
+			if( i in this.video_options && this.video_options[i].enable )
+			{
+				if( type == "string" || type == "number" || type == "boolean")
+				{
+					this.video_options.value = mediaTrackConstraints[i];
+				}
+			}
+		}
+	}
+
+	updateVideoOption(video_option:Capabilities, evt:any)
+	{
+		console.log( evt.target.value );
+		if( video_option.min !== undefined )
+		{
+			video_option.value = parseInt( evt.target.value );
+			this.current_constraints[ video_option.name ] = video_option.value;
+		}
+		else
+		{
+			video_option.value = evt.target.value;
+			this.current_constraints[ video_option.name ] = video_option.value;
+		}
+
+		this.applyConstraints()
 	}
 
 	//document.querySelector('video').addEventListener('play', function() {
