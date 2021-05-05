@@ -31,6 +31,8 @@ export class CustomCameraComponent  implements OnInit, OnDestroy {
 	applied_constraints:any = null;
 	needs_init:boolean = null;
 
+	all_Tracks:any[] = [];
+
 	video_constraints:any ={
 
 	};
@@ -207,7 +209,8 @@ export class CustomCameraComponent  implements OnInit, OnDestroy {
 		navigator.mediaDevices.getUserMedia( this.applied_constraints ).then( mediaStream => {
 			let video = document.getElementById('video') as HTMLVideoElement;
 			video.srcObject = mediaStream;
-			this.track = mediaStream.getVideoTracks()[0];
+			this.all_Tracks = mediaStream.getVideoTracks();
+			this.track = this.all_Tracks[0];
 			this.imageCapture = getImageCapture( this.track );
 			this.raw_video_capabilities = this.track.getCapabilities();
 			this.updateConstraintsValues(this.track.getConstraints());
