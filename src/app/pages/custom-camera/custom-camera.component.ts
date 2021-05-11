@@ -30,6 +30,8 @@ export class CustomCameraComponent  implements OnInit, OnDestroy {
 	track:MediaStreamTrack = null;
 	applied_constraints:any = null;
 	needs_init:boolean = null;
+	camera_id:string = null;
+
 	advanced_constraints:any = { advanced: [
 
 	]};
@@ -107,18 +109,33 @@ export class CustomCameraComponent  implements OnInit, OnDestroy {
 
 	/* Utils */
 
+	drawCanvasVideo()
+	{
+		let video = document.getElementById('video') as HTMLVideoElement;
+    	let scale = 1;//scale || 1;
+    	const canvas = document.getElementById('takePhotoCanvas') as HTMLCanvasElement;
+    	canvas.width = video.clientWidth * scale;
+    	canvas.height = video.clientHeight * scale;
+    	canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    	//const image = new Image()
+    	//image.src = canvas.toDataURL();
+    	//return image;
+	}
+
 	drawCanvas(canvas:HTMLCanvasElement, img:ImageBitmap)
 	{
-		//let canvas_width = 1920;
-		//let canvas_height = 1080;
-		canvas.width = parseInt(getComputedStyle(canvas).width.split('px')[0]);
-		canvas.height = parseInt(getComputedStyle(canvas).height.split('px')[0]);
+		let canvas_width = parseInt(getComputedStyle(canvas).width.split('px')[0]);
+		let canvas_height = parseInt(getComputedStyle(canvas).height.split('px')[0]);
+		canvas.width = canvas_width;
+		canvas.height = canvas_height;
 
-		let ratio	= Math.min(canvas.width / img.width, canvas.height / img.height);
-		let x = (canvas.width - img.width * ratio) / 2;
-		let y = (canvas.height - img.height * ratio) / 2;
-		canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-		canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height, x, y, img.width * ratio, img.height * ratio);
+		//let ratio	= Math.min(canvas.width / img.width, canvas.height / img.height);
+		//let x = (canvas.width - img.width * ratio) / 2;
+		//let y = (canvas.height - img.height * ratio) / 2;
+		//canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+		//canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height, x, y, img.width * ratio, img.height * ratio);
+		canvas.getContext('2d').drawImage(img, 0, 0, canvas_width,canvas_height);
 	}
 
 
@@ -212,6 +229,10 @@ export class CustomCameraComponent  implements OnInit, OnDestroy {
 					facingMode:{ ideal: "environment" },
 					focusDistance:{ ideal: 0.2 },
 					apectRatio:{ ideal:(4/3)},
+					//width: {ideal: 3840},
+					//height: {ideal: 2160},
+					width: {ideal: 2160},
+					height: {ideal: 1620},
 					zoom:{ideal: 4},
 					resizeMode:{ ideal: "none" },
 					focusMode:{ ideal: "continuous" }
@@ -219,7 +240,19 @@ export class CustomCameraComponent  implements OnInit, OnDestroy {
 			};
 		}
 
-		this.applied_constraints.video['facingMode']={ ideal: 'environment' };
+		if( this.camera_id )
+		{
+			this.applied_constraints = {
+				video:{
+					deviceId: this.camera_id
+				}
+			};
+		}
+		else
+		{
+			this.applied_constraints.video['facingMode']={ ideal: 'environment' };
+		}
+
 
 		navigator.mediaDevices.getUserMedia( this.applied_constraints ).then( mediaStream => {
 			let video = document.getElementById('video') as HTMLVideoElement;
@@ -293,6 +326,15 @@ export class CustomCameraComponent  implements OnInit, OnDestroy {
 		.catch(error => this.rest.showError(error));
 	}
 
+
+	onCameraChange(evt:any)
+	{
+		this.camera_id = evt.target.value;
+		this.stopVideo();
+		setTimeout(()=>{
+			this.initCam();
+		},500);
+	}
 
 	changeNeedsInit(evt:any)
 	{
