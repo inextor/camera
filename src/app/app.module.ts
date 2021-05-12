@@ -5,12 +5,14 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ToastErrorComponent } from './components/toast-error/toast-error.component';
 import { CustomCameraComponent } from './pages/custom-camera/custom-camera.component';
+import { CapturarEvidencia3Component } from './pages/capturar-evidencia3/capturar-evidencia3.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ToastErrorComponent,
-    CustomCameraComponent
+    CustomCameraComponent,
+    CapturarEvidencia3Component
   ],
   imports: [
     BrowserModule,
