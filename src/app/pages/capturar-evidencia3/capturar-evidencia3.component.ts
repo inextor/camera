@@ -164,23 +164,46 @@ export class CapturarEvidencia3Component  implements OnInit
 	drawCanvasVideo()
 	{
 		let video =	document.getElementById('video') as HTMLVideoElement;
+
 		createImageBitmap(video).then((imageBitmap)=>{
 			console.log('bitmap');
 
 			let video_container = document.getElementById('video_container');
 			let image_ratio = document.getElementById('image_mask');
 
+
+			let video_height = video.clientHeight;
+			let video_width = video.clientWidth;
+
 			let diff	= video_container.clientHeight-video.clientHeight;
 			let rect	= image_ratio.getBoundingClientRect();
-			let ratio	= imageBitmap.width/rect.width;
+			let ratio	= imageBitmap.width/video_width;
 
-			this.otherProps = {bitmap_widht:imageBitmap.width, bitmap_height: imageBitmap.height , ratio,ystart: ratio*rect.y };
+			this.otherProps = {
+				bitmap_widht:imageBitmap.width,
+				bitmap_height: imageBitmap.height ,
+				video_width,
+				video_height,
+				ratio,
+				ystart: imageBitmap.height-(100*ratio)
+			};
 
 			let canvas	= document.createElement('canvas') as HTMLCanvasElement;
 			canvas.width = rect.width;
 			canvas.height = rect.height;
 
-			canvas.getContext('2d').drawImage(video, rect.x*ratio, (rect.y-diff)*ratio, rect.width*ratio, rect.height*ratio, 0,0,rect.width,rect.height);
+			canvas.getContext('2d').drawImage
+			(
+				video,
+				rect.x*ratio,
+				(video_height-100-rect.height)*ratio,
+				rect.width*ratio,
+				rect.height*ratio,
+				0,
+				0,
+				rect.width,
+				rect.height
+			);
 			this.imgString = canvas.toDataURL();
 
 		},(error)=>this.rest.showError(error));
