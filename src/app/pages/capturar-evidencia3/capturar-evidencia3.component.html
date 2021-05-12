@@ -1,0 +1,98 @@
+<div style="width:100%;overflow:hidden;">
+	<div style="position:relative" id="video_container"><video autoplay="" id="video" style="width:384px;"></video><div style="position:absolute;bottom:100px;left:10%;border:1px solid red;width:80%;"><img src="/assets/ratio.png" style="width:100%" id="image_mask"></div></div>
+	<!-- div style="position:relative;"><img src="/assets/ratio.png" style="width:100%" id="image_ratio"><canvas id="canvas_2" style="position:absolute;top:0;left:0;right:0;bottom:0"></canvas></div-->
+	<div>Version 1.32</div>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-3">
+				<button class="btn btn-primary" type="button" (click)="onGetUserMediaButtonClick($event)">Start</button>
+			</div>
+			<!-- div class="col-3">
+				<button class="btn btn-primary" type="button"(click)="onTakePhotoButtonClick($event)">Foto</button>
+			</div -->
+			<div class="col-3">
+				<button class="btn btn-primary" type="button"(click)="drawCanvasVideo()">Photo</button>
+			</div>
+			<div class="col-3">
+				<button class="btn btn-primary" type="button"(click)="stopVideo()">stop</button>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<select name="cameraid" class="form-control" (change)="onCameraChange($event)">
+				<option *ngFor="let d of devices" [value]="d.deviceId">{{d.kind}} - {{d.deviceId}}-{{d.label}}</option>
+			</select>
+		</div>
+
+		<h3>Devices</h3>
+
+		<div class="border-bottom" *ngFor="let d of devices">
+			<pre>{{ d | json }}</pre>
+		</div>
+		<div>
+			<img  *ngIf="imgString" [src]="imgString">
+			{{rect | json}}
+		</div>
+		<h3>other props</h3>
+		<div>
+			{{otherProps | json}}
+		</div>
+
+		<!-- <h2>Video Capabilities</h2>
+		<div *ngFor="let v of raw_video_capabilities | keyvalue" class="border-bottom">
+			<div class="fw-bold">{{v.key}}</div>
+			<div class="">{{ v.value | json }}</div>
+		</div>
+		-->
+
+		<h2>Current Video Constraints</h2>
+		<div class="text-break"> {{ current_constraints | json }} </div>
+
+		<h2>Applied Capabilities</h2>
+		{{ applied_constraints | json}}
+
+		{{all_Tracks | json }}
+	</div>
+</div>
+<div class="container-fluid">
+	<div class="row">
+		<!--div class="col-6 col-md-4 p-3">
+			<input type="text" name="code" (ngModel)="code" (ngModelChange)="codigoLlego($event)">
+		</div-->
+		<div class="col-12 col-md-8 p-3">
+			<!--div class="card" *ngIf="serial_number_info">
+				<ul class="list-group">
+					<li class="list-group-item">Etiqueta:{{serial_number_info?.category?.name | titlecase}}</li>
+					<li class="list-group-item">Presentacion:{{serial_number_info?.item?.name | titlecase}}</li>
+					<li class="list-group-item">Estatus: {{status_dictionary[serial_number_info?.serial_number?.status] | titlecase}}</li>
+					<li class="list-group-item">marbete: {{serial_number_info?.serial_number.code | uppercase }}</li>
+				</ul>
+			</div-- >
+		</div>
+	</div>
+	<!--div style="position:relative;"><img src="/assets/ratio.png" style="width:100%" id="image_ratio"><canvas id="canvas_1" style="position:absolute;top:0;right:0;"></canvas></div-->
+	<div style="position:relative;"><img src="/assets/ratio.png" style="width:100%" id="image_ratio"><canvas id="canvas_2" style="position:absolute;top:0;left:0;right:0;bottom:0"></canvas></div>
+	<div>{{error_foo}}</div>
+	<!-- div>
+		<button type="button" class="btn btn-primary w-100" (click)="takeSnapshot()">Capture</button>
+	</div -->
+
+	<!--div>
+		<canvas id="crop_image_canvas" style="width:108;height:108" width=108 height=108></canvas>
+	</div-->
+	<!-- div *ngIf="imgString">
+		<img [src]="imgString">
+	</div -->
+
+	<!-- div class="card p-3" *ngIf="serial_number_info">
+		<div class="">
+			<app-image-uploader [(image)]="serial_number_info.serial_number.evidence_image_id" [container_classes]="{'avatar-img': true,'rounded':true,'subir_evidencia_image':true}"></app-image-uploader>
+		</div>
+		<div>
+			<button type="button"  (click)="guardarEvidencia($event)" class="btn btn-primary" [disabled]="serial_number_info?.serial_number.evidence_image_id == null">Guardar Evidencia</button>
+			<button type="button"  (click)="marcarComoRegresado()" class="btn btn-primary mx-1">Marcar Como Regresado</button>
+		</div>
+	</div -->
+</div>
+
+
